@@ -1,0 +1,39 @@
+# Ignore build outputs
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+x64/
+x86/
+[Aa][Rr][Mm]*/
+Release/
+Debug/
+
+# Visual Studio files
+.vs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Resharper / Rider
+_ReSharper*/
+*.DotSettings.user
+
+# Other
+*.cache
+*.log
+*.db
+*.DS_Store
+Thumbs.db
+secrets.json
+
+# Miscellaneous
+DataRetrieval
+publish/
