@@ -19,7 +19,7 @@ namespace it13Project.Pages
         private int currentPage = 1;
         private int pageSize = 30;
         private int totalRecords = 0;
-        private int totalPages = 0;
+        private int totalPages = 1;
         private readonly ReviewsService _reviewsService;
         public ReviewPage()
         {
@@ -47,14 +47,7 @@ namespace it13Project.Pages
                 dgvReviews.Columns.Clear();
 
                 dgvReviews.DataSource = pagedResult.Items;
-
-                // Hide game_id / review_id but keep them accessible
-                if (!dgvReviews.Columns.Contains("GameId"))
-                    dgvReviews.Columns.Insert(0, new DataGridViewTextBoxColumn { Name = "GameId", DataPropertyName = "GameId", Visible = false });
-
-                if (!dgvReviews.Columns.Contains("ReviewId"))
-                    dgvReviews.Columns.Insert(1, new DataGridViewTextBoxColumn { Name = "ReviewId", DataPropertyName = "ReviewId", Visible = false });
-
+                
                 // Format columns
                 dgvReviews.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
                 if (dgvReviews.Columns["ReviewDate"] != null)
@@ -62,12 +55,22 @@ namespace it13Project.Pages
                 if (dgvReviews.Columns["Confidence"] != null)
                     dgvReviews.Columns["Confidence"].DefaultCellStyle.Format = "P2";
 
-                lblPageInfo.Text = $"Page {currentPage} of {totalPages} ({totalRecords} reviews)";
+                // lblPageInfo.Text = $"Page {currentPage} of {totalPages} ({totalRecords} reviews)";
+            
+                txtCurrentPage.Text = currentPage.ToString();
+                lblTotalPages.Text = $"of {totalPages}";
+                lblReviewCount.Text = $"({totalRecords} reviews)";
+
             }
             catch (Exception ex)
             {
                 MessageBox.Show("Error loading reviews: " + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            
+            // Enable/disable navigation
+            btnPrev.Enabled = currentPage > 1;
+            btnNext.Enabled = currentPage < totalPages;
         }
 
         private List<ReviewDisplay> GetSelectedReviews()
@@ -136,7 +139,26 @@ namespace it13Project.Pages
             }
         }
 
+        private void txtCurrentPage_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                if (!int.TryParse(txtCurrentPage.Text, out int value))
+                {
+                    MessageBox.Show("Please enter a valid number.");
+                    return;
+                }
 
+                currentPage = value;
+                if (value > totalPages) currentPage = totalPages;
+                if (value < 1) currentPage = 1;
+                
+                LoadReviewsPaged();
+                
+                e.Handled = true;
+                e.SuppressKeyPress = true; 
+            }
+        }
 
         private void btnAdd_Click(object sender, EventArgs e)
         {
@@ -187,46 +209,19 @@ namespace it13Project.Pages
                 {
                     client.BaseAddress = new Uri("http://localhost:8000/");
 
-                    // Prepare request body
-                    // var requestData = new
-                    // {
-                    //     reviews = selectedReviews.Select(r => new
-                    //     {
-                    //         review_id = r.ReviewId,
-                    //         text = r.ReviewText
-                    //     }).ToList()
-                    // };
-
-                    // Option 1 XXXXXXX
-                    // var requestData = selectedReviews.Select(r => r.ReviewText).ToList();
-
-
-                    // Option 2
                     var requestData = selectedReviews.Select(r => new
                     {
                         review_id = r.ReviewId,
                         text = r.ReviewText
                     }).ToList();
 
-
-
-
                     string json = JsonConvert.SerializeObject(requestData);
                     var content = new StringContent(json, Encoding.UTF8, "application/json");
-
 
                     // Send POST request
                     var response = await client.PostAsync("predict", content);
                     response.EnsureSuccessStatusCode();
 
-
-
-                    // X
-                    // // Parse response
-                    // string responseJson = await response.Content.ReadAsStringAsync();
-                    // var predictions = JsonConvert.DeserializeObject<List<SentimentPrediction>>(responseJson);
-
-                    // Y
                     string responseJson = await response.Content.ReadAsStringAsync();
                     var predictions = JsonConvert.DeserializeObject<List<SentimentPrediction>>(responseJson);
 
@@ -255,7 +250,42 @@ namespace it13Project.Pages
             }
         }
 
+        private void btnDeleteSentiments_Click(object sender, EventArgs e)
+        {
+            var selectedIds = new List<int>();
+
+            foreach (DataGridViewRow row in dgvReviews.SelectedRows)
+            {
+                int sentimentId = Convert.ToInt32(row.Cells["ReviewId"].Value);
+                selectedIds.Add(sentimentId);
+            }
 
 
+            if (selectedIds.Count == 0)
+            {
+                MessageBox.Show("Please select at least one sentiment to delete.",
+                    "No Selection", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            if (MessageBox.Show($"Delete {selectedIds.Count} selected sentiment(s)?",
+                                "Confirm",
+                                MessageBoxButtons.YesNo,
+                                MessageBoxIcon.Question) == DialogResult.Yes)
+            {
+                SentimentService.DeleteSentiments(selectedIds);
+                LoadReviewsPaged(); // refresh table
+            }
+        }
+        
+        private void txtSearch_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                LoadReviewsPaged();
+                e.Handled = true;
+                e.SuppressKeyPress = true; 
+            }
+        }
     }
 }

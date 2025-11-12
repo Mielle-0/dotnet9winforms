@@ -88,17 +88,17 @@ namespace it13Project.Data
             int offset = (page - 1) * pageSize;
 
             string query = @"
-        SELECT 
-            s.sentiment_id,
-            g.app_name, 
-            r.review_text, 
-            s.predicted_sentiment, 
-            s.confidence_score,
-            r.review_date
-        FROM ReviewSentiment s
-        INNER JOIN Reviews r ON s.review_id = r.review_id
-        INNER JOIN Games g ON r.game_id = g.game_id
-        WHERE 1=1 ";
+                SELECT 
+                    s.sentiment_id,
+                    g.app_name, 
+                    r.review_text, 
+                    s.predicted_sentiment, 
+                    s.confidence_score,
+                    r.review_date
+                FROM ReviewSentiment s
+                INNER JOIN Reviews r ON s.review_id = r.review_id
+                INNER JOIN Games g ON r.game_id = g.game_id
+                WHERE 1=1 ";
 
             var parameters = new List<SqlParameter>();
 
@@ -127,8 +127,8 @@ namespace it13Project.Data
             }
 
             query += @"
-        ORDER BY r.review_date DESC
-        OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY";
+                ORDER BY r.review_date DESC
+                OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY";
 
             parameters.Add(new SqlParameter("@offset", offset));
             parameters.Add(new SqlParameter("@pageSize", pageSize));
@@ -204,7 +204,13 @@ namespace it13Project.Data
             DatabaseHelper.ExecuteNonQuery(query);
         }
 
+        public static void DeleteSentimentsByReviewId(List<int> reviewIds)
+        {
+            if (reviewIds == null || reviewIds.Count == 0) return;
 
+            string query = $"DELETE FROM ReviewSentiment WHERE review_id IN ({string.Join(",", reviewIds)})";
+            DatabaseHelper.ExecuteNonQuery(query);
+        }
 
 
 

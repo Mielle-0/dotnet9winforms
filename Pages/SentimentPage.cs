@@ -103,8 +103,8 @@ namespace it13Project.Pages
 
             foreach (DataGridViewRow row in dgvReviews.SelectedRows)
             {
-                int sentimentId = Convert.ToInt32(row.Cells["SentimentId"].Value);
-                selectedIds.Add(sentimentId);
+                int reviewId = Convert.ToInt32(row.Cells["ReviewId"].Value);
+                selectedIds.Add(reviewId);
             }
 
 
@@ -120,7 +120,7 @@ namespace it13Project.Pages
                                 MessageBoxButtons.YesNo,
                                 MessageBoxIcon.Question) == DialogResult.Yes)
             {
-                SentimentService.DeleteSentiments(selectedIds);
+                SentimentService.DeleteSentimentsByReviewId(selectedIds);
                 LoadSentiments(); // refresh table
             }
         }

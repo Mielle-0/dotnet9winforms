@@ -47,46 +47,68 @@ namespace it13Project.Data
             }
 
             // Count total
-            string countQuery = "SELECT COUNT(*) " + baseQuery;
-            // Count query
-            object totalObj = DatabaseHelper.ExecuteScalar(countQuery, parameters.ToArray());
-            result.TotalCount = Convert.ToInt32(totalObj);
-
-            // Fresh parameter list for paging
-            var pageParams = new List<SqlParameter>();
-
-            if (!string.IsNullOrEmpty(search))
-                pageParams.Add(new SqlParameter("@search", $"%{search}%"));
-
-            if (!string.IsNullOrEmpty(sentiment) && sentiment != "All")
-                pageParams.Add(new SqlParameter("@sentiment", sentiment));
-
-            if (from.HasValue)
-                pageParams.Add(new SqlParameter("@from", from.Value));
-
-            if (to.HasValue)
-                pageParams.Add(new SqlParameter("@to", to.Value));
-
-            pageParams.Add(new SqlParameter("@offset", (pageNumber - 1) * pageSize));
-            pageParams.Add(new SqlParameter("@pageSize", pageSize));
+            // string countQuery = "SELECT COUNT(*) " + baseQuery;
+            // result.TotalCount = Convert.ToInt32(DatabaseHelper.ExecuteScalar(countQuery, parameters.ToArray()));
+            // result.TotalPages = (int)Math.Ceiling(result.TotalCount / (double)pageSize);
 
 
-            string pageQuery = $@"
-                SELECT 
-                    r.game_id,
-                    a.app_name,
-                    r.review_text,
-                    r.review_score_numeric,
-                    r.review_recommendation,
-                    s.predicted_sentiment,
-                    s.confidence_score,
-                    r.review_date,
-                    r.review_id
-                {baseQuery}
-                ORDER BY r.review_date DESC
-                OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY";
+            // parameters.Add(new SqlParameter("@offset", (pageNumber - 1) * pageSize));
+            // parameters.Add(new SqlParameter("@pageSize", pageSize));
 
-            DataTable dt = DatabaseHelper.ExecuteQuery(pageQuery, pageParams.ToArray());
+
+            // string pageQuery = $@"
+            //     SELECT 
+            //         r.game_id,
+            //         a.app_name,
+            //         r.review_text,
+            //         r.review_score_numeric,
+            //         r.review_recommendation,
+            //         s.predicted_sentiment,
+            //         s.confidence_score,
+            //         r.review_date,
+            //         r.review_id
+            //     {baseQuery}
+            //     ORDER BY r.review_date DESC
+            //     OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY";
+
+            // DataTable dt = DatabaseHelper.ExecuteQuery(pageQuery, pageParams.ToArray());
+
+
+
+// Count total
+string countQuery = "SELECT COUNT(*) " + baseQuery;
+var countParams = parameters
+    .Select(p => new SqlParameter(p.ParameterName, p.Value))
+    .ToArray();
+
+result.TotalCount = Convert.ToInt32(DatabaseHelper.ExecuteScalar(countQuery, countParams));
+result.TotalPages = (int)Math.Ceiling(result.TotalCount / (double)pageSize);
+
+// Build params for paged query
+var pageParams = parameters
+    .Select(p => new SqlParameter(p.ParameterName, p.Value))
+    .ToList();
+
+pageParams.Add(new SqlParameter("@offset", (pageNumber - 1) * pageSize));
+pageParams.Add(new SqlParameter("@pageSize", pageSize));
+
+string pageQuery = $@"
+    SELECT 
+        r.game_id,
+        a.app_name,
+        r.review_text,
+        r.review_score_numeric,
+        r.review_recommendation,
+        s.predicted_sentiment,
+        s.confidence_score,
+        r.review_date,
+        r.review_id
+    {baseQuery}
+    ORDER BY r.review_date DESC
+    OFFSET @offset ROWS FETCH NEXT @pageSize ROWS ONLY";
+
+DataTable dt = DatabaseHelper.ExecuteQuery(pageQuery, pageParams.ToArray());
+
 
 
             foreach (DataRow row in dt.Rows)
@@ -158,9 +180,6 @@ namespace it13Project.Data
         }
 
 
-        // ✅ Get single review with sentiment (for editing)
-
-        // === ADD NEW REVIEW ===
         public int AddReview(string reviewText, int votes, DateTime reviewDate,
                              string reviewerId, decimal score, bool recommend, int gameId)
         {
@@ -182,7 +201,7 @@ namespace it13Project.Data
             return Convert.ToInt32(result);
         }
 
-        // === UPDATE EXISTING REVIEW ===
+
         public void UpdateReview(int reviewId, string reviewText, int votes, DateTime reviewDate,
                                  string reviewerId, decimal score, bool recommend, int gameId)
         {

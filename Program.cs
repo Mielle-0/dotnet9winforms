@@ -1,4 +1,5 @@
 using it13Project.Forms;
+using Microsoft.Extensions.Configuration;
 
 namespace it13Project
 {
@@ -15,12 +16,27 @@ namespace it13Project
             ApplicationConfiguration.Initialize();
 
 
+            // Read appsettings.json
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+            IConfiguration config = builder.Build();
+
+            string username = config["Database:Username"];
+            string password = config["Database:Password"];
+
+            // Optional: verify they are loaded
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
+                MessageBox.Show("Database credentials not found in appsettings.json!");
+                return;
+            }
+
+
             Application.Run(new Form1());
 
-            // CurrentUser.UserId = 2;
-            // CurrentUser.Name = "admin";
-            // CurrentUser.Role = "System Administrator";
-            // Application.Run(new MainForm());
+            // dotnet publish -c Release -r win-x64 --self-contained true /p:PublishSingleFile=true /p:IncludeAllContentForSelfExtract=true
 
         }
     }

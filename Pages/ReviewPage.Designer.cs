@@ -64,9 +64,10 @@ namespace it13Project.Pages
             btnEdit = new KryptonButton { Text = "Edit Selected", Margin = new Padding(5, 5, 0, 0) };
             btnDelete = new KryptonButton { Text = "Delete Selected", Margin = new Padding(5, 5, 0, 0) };
             btnRefresh = new KryptonButton { Text = "Refresh", Margin = new Padding(5, 5, 0, 0) };
-            btnRunModel = new KryptonButton { Text = "Run Sentiment Model", Margin = new Padding(5, 5, 0, 0) };
+            btnRunModel = new KryptonButton { Text = "Run Sentiment Model", Margin = new Padding(5, 5, 0, 0), Width = 150 };
+            btnRemoveSentiment = new KryptonButton { Text = "Remove Sentiment", Margin = new Padding(5, 5, 0, 0), Width = 150 };
 
-            actionPanel.Controls.AddRange(new Control[] { btnAdd, btnEdit, btnDelete, btnRefresh, btnRunModel });
+            actionPanel.Controls.AddRange(new Control[] { btnAdd, btnEdit, btnDelete, btnRemoveSentiment, btnRunModel, btnRefresh });
 
             // Filter Panel
             filterPanel = new FlowLayoutPanel
@@ -189,14 +190,42 @@ namespace it13Project.Pages
 
             btnPrev = new KryptonButton { Text = "← Previous", Margin = new Padding(5, 5, 0, 0), Width = 100 };
             btnNext = new KryptonButton { Text = "Next →", Margin = new Padding(5, 5, 0, 0), Width = 100 };
-            lblPageInfo = new KryptonLabel
+            // lblPageInfo = new KryptonLabel
+            // {
+            //     Text = "Page 1 of 1",
+            //     Margin = new Padding(15, 10, 0, 0),
+            //     StateCommon = { ShortText = { Color1 = ThemeColors.TextColor } }
+            // };
+            // Page Number Input
+            txtCurrentPage = new KryptonTextBox
             {
-                Text = "Page 1 of 1",
-                Margin = new Padding(15, 10, 0, 0),
+                Width = 40,
+                Margin = new Padding(15, 5, 0, 0),
+                TextAlign = HorizontalAlignment.Center,
+            };
+
+            // Total Pages label
+            lblTotalPages = new KryptonLabel
+            {
+                Margin = new Padding(5, 10, 0, 0),
                 StateCommon = { ShortText = { Color1 = ThemeColors.TextColor } }
             };
 
-            paginationPanel.Controls.AddRange(new Control[] { btnPrev, btnNext, lblPageInfo });
+            // Review count label
+            lblReviewCount = new KryptonLabel
+            {
+                Margin = new Padding(10, 10, 0, 0),
+                StateCommon = { ShortText = { Color1 = ThemeColors.TextColor } }
+            };
+
+            paginationPanel.Controls.AddRange(new Control[] 
+            { 
+                btnPrev, btnNext, 
+                // lblPageInfo, 
+                txtCurrentPage, lblTotalPages, lblReviewCount
+            });
+
+
 
             // Add layout
             tableLayout.RowCount = 4;
@@ -219,6 +248,11 @@ namespace it13Project.Pages
             btnPrev.Click += btnPrev_Click;
             btnNext.Click += btnNext_Click;
             btnRunModel.Click += btnRunSentiment_Click;
+            btnRemoveSentiment.Click += btnDeleteSentiments_Click;
+
+            txtCurrentPage.KeyDown += txtCurrentPage_KeyDown;
+            txtSearch.KeyDown += txtSearch_KeyDown;
+
             this.Controls.Add(tableLayout);
             this.ResumeLayout(false);
         }
@@ -231,10 +265,15 @@ namespace it13Project.Pages
         private TableLayoutPanel tableLayout;
         private FlowLayoutPanel actionPanel;
         private FlowLayoutPanel filterPanel;
-        private KryptonButton btnAdd, btnEdit, btnDelete, btnRefresh, btnApplyFilters, btnRunModel;
+        private KryptonButton btnAdd, btnEdit, btnDelete, btnRefresh, btnApplyFilters, btnRunModel, btnRemoveSentiment;
         private KryptonTextBox txtSearch;
         private KryptonDateTimePicker dtFrom, dtTo;
         private KryptonComboBox cboSentiment;
         private KryptonDataGridView dgvReviews;
+        private KryptonTextBox txtPageJump;
+
+        private KryptonTextBox txtCurrentPage;
+        private KryptonLabel lblTotalPages;
+        private KryptonLabel lblReviewCount;
     }
 }

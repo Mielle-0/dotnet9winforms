@@ -36,14 +36,18 @@ namespace it13Project.Data
                 // "SentimentTrends",  // Temporarily disabled
                 // "InfluentialReviewers",
                 "Alerts", "Reports", "AdminSettings",
-                "UserManagement", "ReviewPage", "SentimentPage", "ProfileSettings"
+                "UserManagement", "ReviewPage", 
+                // "SentimentPage", 
+                "ProfileSettings"
             }
         },
         { "Data Analyst", new List<string>
             {
                 "Dashboard", "GameList", "ReviewPage",
                 // "SentimentTrends",
-                "Reports", "SentimentPage", "ProfileSettings"
+                "Reports", 
+                // "SentimentPage", 
+                "ProfileSettings"
             }
         },
         { "Marketing Manager", new List<string>

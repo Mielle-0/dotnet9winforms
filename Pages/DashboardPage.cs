@@ -64,22 +64,13 @@ namespace it13Project.Pages
             {
                 kpiLayout.Controls.Clear();
 
-                // kpiLayout.Controls.Add(
-                //     CreateModernStatPanel(
-                //         Properties.Resources.iconGame,
-                //         "Review / Total Games",
-                //         DashboardService.GetTotalGames().ToString("N0"),
-                //         Color.FromArgb(52, 152, 219)
-                //     )
-                // );
-
                 var (totalGames, reviewedGames) = DashboardService.GetReviewedTotalGames();
 
                 kpiLayout.Controls.Add(
                     CreateModernStatPanel(
                         Properties.Resources.iconGame,
-                        "Reviewed / Total Games",
-                        $"{reviewedGames:N0} / {totalGames:N0}",
+                        "Total Games",
+                        $"{totalGames:N0}",
                         Color.FromArgb(52, 152, 219)
                     )
                 );

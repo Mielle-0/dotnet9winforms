@@ -32,7 +32,7 @@ _ReSharper*/
 *.db
 *.DS_Store
 Thumbs.db
-secrets.json
+appsettings.json
 
 # Miscellaneous
 DataRetrieval
