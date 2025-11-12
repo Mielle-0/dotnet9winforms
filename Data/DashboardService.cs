@@ -106,15 +106,6 @@ namespace it13Project.Data
             return Convert.ToInt32(DatabaseHelper.ExecuteScalar(query));
         }
 
-
-
-
-
-
-
-
-
-
         /// <summary>
         /// Returns average sentiment score per day.
         /// -1 = negative, 0 = neutral, +1 = positive
@@ -209,4 +200,6 @@ namespace it13Project.Data
             return (gameNames, counts);
         }
     }
+
+
 }

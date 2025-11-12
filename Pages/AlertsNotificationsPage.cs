@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using it13Project.UI;
 
 namespace it13Project.Pages
 {
@@ -15,52 +16,40 @@ namespace it13Project.Pages
         public AlertsNotificationsPage()
         {
             InitializeComponent();
-            PopulateFilters();
-            PopulateAlerts(); // example data
+            SetupAlertColors();
         }
 
-        private void AlertsControl_Load(object sender, EventArgs e)
+        private void SetupAlertColors()
         {
-
-            // LoadAlertData();
-        }
-
-        private void PopulateFilters()
-        {
-            cbGame.Items.AddRange(new string[] { "All Games", "Game A", "Game B" });
-            cbPlatform.Items.AddRange(new string[] { "All Platforms", "Steam", "Amazon" });
-            cbTimeframe.Items.AddRange(new string[] { "Last 24h", "Last 7 Days", "Last 30 Days" });
-
-            cbGame.SelectedIndex = 0;
-            cbPlatform.SelectedIndex = 0;
-            cbTimeframe.SelectedIndex = 0;
-        }
-
-        private void PopulateAlerts()
-        {
-            // Example alerts
-            AddAlert(DateTime.Now, "Game A", "Crash bug on level 3", "Negative", "Critical", "https://steam.com");
-            AddAlert(DateTime.Now, "Game B", "Great graphics!", "Positive", "Info", "https://amazon.com");
-        }
-
-        private void AddAlert(DateTime time, string game, string review, string sentiment, string alertType, string link)
-        {
-            alertsGrid.Rows.Add(time, game, review, sentiment, alertType, link);
-        }
-        
-        private void AlertsGrid_CellFormatting(object sender, DataGridViewCellFormattingEventArgs e)
-        {
-            if (alertsGrid.Columns[e.ColumnIndex].Name == "Sentiment" && e.Value != null)
+            dgvAlerts.CellFormatting += (s, e) =>
             {
-                string? sentiment = e.Value.ToString();
-                e.CellStyle.ForeColor = sentiment switch
+                if (dgvAlerts.Columns[e.ColumnIndex].Name == "Severity")
                 {
-                    "Positive" => Color.LimeGreen,
-                    "Neutral" => Color.Gray,
-                    "Negative" => Color.Red,
-                    _ => Color.Black
-                };
-            }
+                    if (e.Value != null)
+                    {
+                        string severity = e.Value.ToString();
+                        switch (severity)
+                        {
+                            case "Critical":
+                                dgvAlerts.Rows[e.RowIndex].DefaultCellStyle.BackColor = System.Drawing.Color.LightCoral;
+                                dgvAlerts.Rows[e.RowIndex].DefaultCellStyle.ForeColor = System.Drawing.Color.White;
+                                break;
+                            case "Warning":
+                                dgvAlerts.Rows[e.RowIndex].DefaultCellStyle.BackColor = System.Drawing.Color.Khaki;
+                                dgvAlerts.Rows[e.RowIndex].DefaultCellStyle.ForeColor = System.Drawing.Color.Black;
+                                break;
+                            case "Info":
+                                dgvAlerts.Rows[e.RowIndex].DefaultCellStyle.BackColor = System.Drawing.Color.LightGreen;
+                                dgvAlerts.Rows[e.RowIndex].DefaultCellStyle.ForeColor = System.Drawing.Color.Black;
+                                break;
+                            default:
+                                dgvAlerts.Rows[e.RowIndex].DefaultCellStyle.BackColor = ThemeColors.ContentBackground;
+                                dgvAlerts.Rows[e.RowIndex].DefaultCellStyle.ForeColor = ThemeColors.TextColor;
+                                break;
+                        }
+                    }
+                }
+            };
         }
     }
 }

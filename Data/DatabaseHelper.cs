@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
 
 namespace it13Project.Data
 {
@@ -12,10 +13,26 @@ namespace it13Project.Data
     {
 
         // Centralized connection string (you can move this to app.config for production)
-        private static readonly string connectionString =
+        private static readonly string connectionString;
             //  @"Data Source=DESKTOP-626PCB6\SQLEXPRESS;Initial Catalog=VideoGameCRM;Integrated Security=True;Trust Server Certificate=True";
-            @"Server=S2PID.S2PID; Database=S2PID; User Id=S2PID; Password=S2PID; Encrypt=True; TrustServerCertificate=True; MultipleActiveResultSets=True;";
+            // @"Server=; Database=; User Id=; Password=; Encrypt=True; TrustServerCertificate=True; MultipleActiveResultSets=True;";
              
+        static DatabaseHelper()
+        {
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(AppDomain.CurrentDomain.BaseDirectory)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+            IConfiguration config = builder.Build();
+
+            string server = config["Database:Server"];
+            string database = config["Database:Database"];
+            string username = config["Database:Username"];
+            string password = config["Database:Password"];
+
+            connectionString = $@"Server={server};Database={database};User Id={username};Password={password};Encrypt=True;TrustServerCertificate=True;MultipleActiveResultSets=True;";
+        }
+
         /// <summary>
         /// Executes a SELECT query and returns a DataTable
         /// </summary>
